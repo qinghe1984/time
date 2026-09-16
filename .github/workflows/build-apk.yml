@@ -50,9 +50,9 @@ jobs:
 
       - name: Add Android backup export bridge
         run: |
-          mkdir -p android/app/src/main/java/com/tttosnown/zhuxi
-          cat > android/app/src/main/java/com/tttosnown/zhuxi/MainActivity.java <<'EOF'
-          package com.tttosnown.zhuxi;
+          mkdir -p android/app/src/main/java/com/qinghe/zhuxi
+          cat > android/app/src/main/java/com/qinghe/zhuxi/MainActivity.java <<'EOF'
+          package com.qinghe.zhuxi;
 
           import android.app.Activity;
           import android.content.Intent;
