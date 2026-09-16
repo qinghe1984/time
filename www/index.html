@@ -242,6 +242,8 @@ let coffees=getData('coffees',{});
 let distracts=getData('distracts',{});
 let familiarityHistory=getData('familiarity_history',[]);
 let studyTimeData=getData('study_time',{});
+var timelineItems=[];try{const _tlv=getData('timeline',[]);if(Array.isArray(_tlv))timelineItems=_tlv}catch(_e){}
+var timelineTickHandle=null,editingTimelineId=null;
 let activeTimerTaskId=null, activeTimerStartedAt=0, timerTickHandle=null;
 let editingEnglishId=null,editingVulnId=null;
 let localMode=true;
