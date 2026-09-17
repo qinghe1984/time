@@ -291,7 +291,7 @@ function saveWeekNote(btn){try{const el=document.getElementById('weekNoteText');
 function renderWeeklySummary(){
   let d=new Date((selectedDate||todayStr)+'T12:00:00'),dow=d.getDay()||7,start=new Date(d);start.setDate(d.getDate()-dow+1);start.setHours(0,0,0,0);
   let end=new Date(start);end.setDate(start.getDate()+7);
-  let week=tasks.filter(t=>{let x=new Date(t.date+'T23:59:59');return x>=start&&x<end});
+  let week=tasks.filter(t=>!t.fromKnowledge&&(()=>{let x=new Date(t.date+'T23:59:59');return x>=start&&x<end})());
   let done=week.filter(t=>t.completed).length,rate=week.length?Math.round(done/week.length*100):0,withM=week.filter(t=>typeof t.mastery==='number'),avg=withM.length?Math.round(withM.reduce((a,t)=>a+t.mastery,0)/withM.length):null,low=withM.filter(t=>t.mastery<60),high=withM.filter(t=>t.mastery>=80);
   let sub={};week.forEach(t=>sub[t.subject||'其他']=(sub[t.subject||'其他']||0)+1);
   let topSub=Object.entries(sub).sort((a,b)=>b[1]-a[1])[0]?.[0]||'暂无',advice=[];
@@ -312,7 +312,7 @@ function renderWeeklySummary(){
 }
 function renderMonthlySummary(){
   let now=new Date((selectedDate||todayStr)+'T12:00:00'),y=now.getFullYear(),mo=now.getMonth(),days=new Date(y,mo+1,0).getDate(),start=`${y}-${String(mo+1).padStart(2,'0')}-01`,end=`${y}-${String(mo+1).padStart(2,'0')}-${String(days).padStart(2,'0')}`;
-  let month=tasks.filter(t=>t.date>=start&&t.date<=end),done=month.filter(t=>t.completed).length,rate=month.length?Math.round(done/month.length*100):0,avg=month.length?Math.round(month.reduce((a,t)=>a+Number(t.mastery||0),0)/month.length):0;
+  let month=tasks.filter(t=>!t.fromKnowledge&&t.date>=start&&t.date<=end),done=month.filter(t=>t.completed).length,rate=month.length?Math.round(done/month.length*100):0,avg=month.length?Math.round(month.reduce((a,t)=>a+Number(t.mastery||0),0)/month.length):0;
   let labels=[],vals=[],weeks=Math.ceil(days/7);
   for(let w=0;w<weeks;w++){let a=w*7+1,b=Math.min(days,(w+1)*7);labels.push(`第${w+1}周`);vals.push(month.filter(t=>{let n=Number(t.date.slice(8,10));return n>=a&&n<=b}).length)}
   document.getElementById('monthlySummaryContent').innerHTML=`<div><b>${y}年${mo+1}月</b>：共 ${month.length} 项任务，完成 ${done} 项，完成率 <b>${rate}%</b>，平均掌握度 <b>${avg}%</b>。</div><div style="margin-top:8px;color:var(--sub);font-size:11px">按周观察学习量变化，帮助判断月底是否出现任务堆积或学习强度波动。</div>`;
@@ -322,7 +322,7 @@ function renderMonthlySummary(){
 function renderWeeklyTimeChart(){const el=document.getElementById('weeklyTimeChart');if(!el)return;let d=new Date((selectedDate||todayStr)+'T12:00:00'),dow=d.getDay()||7,start=new Date(d);start.setDate(d.getDate()-dow+1);start.setHours(12,0,0,0);let vals=[];for(let i=0;i<7;i++){let x=new Date(start);x.setDate(start.getDate()+i);let ds=localDateString(x);vals.push({label:'周'+'一二三四五六日'[i],sec:secondsForDate(ds)})}let max=Math.max(1,...vals.map(x=>x.sec)),total=vals.reduce((a,x)=>a+x.sec,0),avg=Math.round(total/7);el.innerHTML=`<div class="time-chart-title">本周每日实际学习时间</div><div class="time-bars">${vals.map(x=>`<div class="time-bar-col"><span>${formatStudySeconds(x.sec)}</span><div class="time-bar" style="height:${Math.max(4,Math.round(x.sec/max*100))}px"></div><small>${x.label}</small></div>`).join('')}</div><div class="weekly-time-meta">本周总计 <b>${formatStudySeconds(total)}</b>　·　日均 <b>${formatStudySeconds(avg)}</b></div>`}
 function renderStudyStats(){
   const el=document.getElementById('studyStats'); if(!el)return;
-  const all=Array.isArray(tasks)?tasks:[];
+  const all=(Array.isArray(tasks)?tasks:[]).filter(t=>!t.fromKnowledge);
   const total=all.length, done=all.filter(t=>t.completed).length;
   const rate=total?Math.round(done/total*100):0;
   const avg=total?Math.round(all.reduce((s,t)=>s+Number(t.mastery||0),0)/total):0;
